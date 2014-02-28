@@ -1,0 +1,233 @@
+﻿body { 
+    margin: 0;
+    margin-top: 78pt;
+    border: 0; 
+    background-color: #DDD;
+    font-size: 10.5pt;
+    line-height: 1.6em;
+}
+p {
+    margin: 0.75em;
+}
+header {
+    margin: 0;
+    position: fixed;
+    top: 0px; height: 75pt; width: 100%;
+    background-color: #49F;
+    border-bottom: 3pt solid #37C;
+
+            transition: opacity 0.5s;
+       -moz-transition: opacity 0.5s;
+    -webkit-transition: opacity 0.5s;
+         -o-transition: opacity 0.5s;
+}
+.header-title {
+    width: 500pt;
+    margin-left:auto;
+    margin-right:auto;
+    margin-bottom: 0;
+    margin-top:15pt;
+    line-height: normal;
+}
+.header-h1 {
+    font-size: 45pt;
+    font-weight: 900;
+    font-family: 'Dosis', sans-serif;
+    color: #CEE;
+}
+.header-h2 {
+    font-style:italic;
+    color: #ABF;
+    font-family: serif;
+    padding-left: 1.5em;
+}
+nav {
+    background-color: #DDF;
+    color: #77A;
+    padding: 4pt;
+    overflow:hidden;
+}
+.nav-body {
+    width: 500pt;
+    margin-left:auto;
+    margin-right:auto;
+    font-size:small;
+}
+a {
+    text-decoration: none;
+}
+.nav-body > a {
+    padding: 2pt 12pt 2pt 12pt;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    color: #666;
+    border-radius: 3pt;
+}
+.nav-body > a:hover {
+    background-color: #CCC;
+}
+.page-container {
+    margin: 0;
+    background-color: #FFF;
+}
+.page-body {
+    margin-left:auto;
+    margin-right:auto;
+    max-width: 550pt;
+    padding: 20pt;
+    border: 0;
+}
+footer {
+    height: 40pt;
+    text-align: center;
+    font-size: small;
+    border-top: 3pt solid #AAA;
+    margin: 0;
+    padding: 10pt;
+    font-family: serif;
+    color: #000;
+}
+article.home {
+    padding: 1em;
+    margin: 5pt;
+    font-size: 11pt;
+    border-radius: 10pt;
+}
+article.home:hover {
+    background-color: #EEF;
+}
+.art-title {
+    margin: 0 0 10pt 0;
+    font-family:微软雅黑, sans-serif;
+    font-size: 18pt;
+    color: black;
+}
+.art-subtitle {
+    color: #888;
+}
+.art-time {
+    color: black;
+    text-align:right;
+}
+.tag {
+    font-weight: lighter;
+    font-family: 'Inconsolata', monospace;
+    font-size: small;
+    color: #121;
+    border-width: 1px;
+    border-color: #563;
+    border-style: solid;
+    background-color: #AC6;
+    padding: 2pt 4pt 2pt 4pt;
+    margin: 0 1pt 0 1pt;
+    border-radius: 4pt;
+}
+h1, h2, h3, h4, h5, h6 {
+    margin-top: 1em;
+    margin-bottom: 0.6em;
+    font-family:'Dosis', '微软雅黑', sans-serif;
+}
+h1 {
+    font-size:26pt;
+}
+h2 {
+    font-size:22pt;
+}
+h3 {
+    font-size:18pt;
+}
+h4 {
+    font-size:16pt;
+}
+h5 {
+    font-size:14pt;
+}
+h6 {
+    font-size:12pt;
+}
+
+time {
+    font-weight: lighter;
+    font-family: monospace;
+    font-size: small;
+    border-width: 1pt;
+    border-style: solid;
+    border-color: #BBB #EEE #EEE #BBB;
+    background-color: #F6F6F6;
+    padding: 3pt;
+    border-radius: 3pt;
+    line-height: normal;
+}
+.postsList {
+    margin: 0px 0px 10px 0px;
+}
+.postsList > li {
+    list-style: none;
+    padding: 5px 3px;
+    margin: 0;
+    border-bottom: 1px dashed #eee;
+}
+.toRight {
+    float: right;
+}
+ul, ol {
+    padding: 0;
+    margin: 0 0 0px 25px;
+}
+pre, code {
+    border-radius: 4pt;
+    padding: 4pt;
+    background-color: #f7f7f9;
+    border: 1px solid #e1e1e8;
+    font-size: 14px;
+    line-height: 1.6em;
+    font-family: 'Inconsolata', 'Consolas', monospace;
+}
+ul {
+    list-style: disc;
+}
+ol {
+    list-style: decimal;
+}
+.pager {
+    margin-left: 0;
+    margin-bottom: 10px;
+    list-style: none;
+    text-align: center;
+    *zoom: 1;
+}
+
+.pager:before, .pager:after {
+    display: table;
+    content: ""}
+.pager:after {
+    clear: both;
+}
+.pager li {
+    display: inline;
+}
+
+.pager .next a {
+    float: right;
+}
+.pager .previous a {
+    float: left;
+}
+
+hr {
+    border-top: dashed;
+    border-width: 1pt;
+    border-bottom: none;
+    border-color: #CCF;
+}
+
+blockquote {
+    font-size: 12pt;
+    margin: 5pt 5pt 0pt 5pt;
+    padding: 12pt 4pt 2pt 8pt;
+    background-repeat: no-repeat;
+    background-position: 0 0;
+    background-image: url(/images/quote.gif);
+    color: #666;
+    font-style: italic;
+    font-family: serif;
+}
