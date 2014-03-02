@@ -1,0 +1,123 @@
+---
+layout: post
+title: html css notes
+category: web
+tags: ["html", "css"] 
+---
+<head> 
+    <meta charset="utf-8">
+
+</head> 
+
+    <style type="text/css">
+        p {color: blue;}
+        p.spec {color: green;}
+        blockquote {
+            color: maroon;
+            background-color: #fcba7a;
+        }
+        h2 {
+            border-bottom: 1px solid black;
+            font-family: sans-serif;
+        }
+        table {
+            /* 表格离屏幕左右的空隙 */
+            margin-left: 20px;
+            margin-right: 20px;
+            border: thin solid black;
+            caption-side: bottom;
+            /* 下面两种方法都可以消除表格单元格间的空隙 */
+            border-collapse: collapse; 
+            border-spacing: 0px;
+        }
+        td, th {
+            border: thin dotted gray;
+            padding: 5px;
+            background-color: #cc6600;
+            /*垂直居中*/
+            vertical-align: middle;
+        }
+    </style>
+
+
+<p>
+先来个<q>头像</q> <img alt="jyt" src=../images/jyt.jpg><br>
+</p>
+
+<p>
+上文中的头像两个字，我用&lt;q&gt;做了引用，而&amp;quot也可以表示引号的:&quot;&quot;，虽然形状上还是有点差别。其实呢，直接使用也是可以的""，囧吧？<br>
+那么，&lt;q&gt;的意义何在呢？就是从语义上告诉浏览器，这个文字我是在引用的！既然浏览器知道了你的用意，在必要的时候，它自然就会帮你对引用的文字做合适的渲染和处理～<br> 
+</p>
+
+<p>
+对于大段文字的引用，html还提供了另一个工具：&lt;blockquote&gt;，下面看看它的效果：<br>
+<blockquote>
+<a id="quot">刘</a>备伐吴，军有十数万，皆屯于猇亭。吴主拜陆逊都督，临发密嘱：蜀道艰险，转运不宜。卿此去可觇其粮草，便宜击之。月余，逊有书信致：“彼火烧连营，我军宜守。”吴主惑，还书曰：“都督谬矣，火烧连营，岂不宜攻乎？”逊书又致：“彼营之中，无不满屯火烧，接连数十里。粮草优足，实不能攻。” <br>
+
+<sub>注：《三国志·先主传》：“先主姓刘，讳备，字玄德，涿郡涿县人。”（涿郡，今涿州也，属河北。） </sub><br><br>
+
+吴主甚忧，问计于群臣：“孤欲求和，卿等谁可任之？”又环顾诸人脸色，笑曰：“非子瑜不能当此任。” <br>
+
+<sub>注：诸葛瑾，字子瑜。瑾面长似驴，常为孙权所嘲。</sub>
+</blockquote>
+</p>
+
+<p class="spec">
+然后来试试列表list吧，我有两个邮箱地址：
+<ul>
+    <li> dycforever@126.com</li>
+    <li> carldyc@gmail.com</li>
+</ul>
+如果用有序的列表表示就是：
+<ol>
+    <li> dycforever@126.com</li>
+    <li> carldyc@gmail.com</li>
+</ol>
+</p>
+
+<h2> 塔哒～</h2>
+<p>
+现在是码农最关心的code啦：<br>
+<pre><code>
+    class Foo { 
+        private Helper helper = null;
+        public Helper getHelper() {
+            if (helper == null) 
+                synchronized(this) {
+                    if (helper == null) 
+                        helper = new Helper();
+                }    
+            return helper;
+        }
+        // other functions and members...
+    }
+</code></pre>
+暂时不知道怎么调语法高亮，囧
+</p>
+
+            
+<h2>转义字符</h2>
+    <table border="0" cellpadding="1" cellspacing="1" title="最常用的字符实体(Character Entities)">
+        <tr align="left" class="head" valign="top"><th></th><th>显示结果 </th><th>说明 </th><th colspan=2>Entity Name </th></tr>
+        <tr align="left" valign="top"> <td rowspan=5>字符</td> <td>_</td><td> 空格 </td><td>&amp;nbsp;</td><td>&amp;#160;</td></tr>
+        <tr align="left" valign="top"> <td>&lt;</td><td>小于</td><td>&amp;lt;</td><td>&amp;#60;</td></tr>
+        <tr align="left" valign="top"> <td>&gt;</td><td>大于 </td><td>&amp;gt;</td><td>&amp;#62;</td></tr>
+        <tr align="left" valign="top"> <td>&amp;</td><td>&amp;符号</td><td>&amp;amp;</td><td>&amp;#38;</td></tr>
+        <tr align="left" valign="top"> <td>"</td><td>双引号 </td><td>&amp;quot;</td><td>&amp;#34;</td></tr>
+
+        <tr align="left" valign="top"> <td rowspan=4>符号 <td>© </td><td>版权</td><td>&amp;copy; </td><td>&amp;#169; </td></tr>
+        <tr align="left" valign="top">  <td>® </td><td>注册商标 </td><td>&amp;reg; </td><td>&amp;#174; </td></tr>
+        <tr align="left" valign="top">  <td>× </td><td>乘号 </td><td>&amp;times; </td><td>&amp;#215; </td></tr>
+        <tr align="left" valign="top">  <td>÷ </td><td>除号 </td><td>&amp;divide; </td><td>&amp;#247; </td></tr>
+    </table>
+
+
+
+<p></p>
+<br>
+<p></p>
+<p>
+点<a href=#quot title="刘备...">这里</a>回到之前的锚点 <br>
+点<a href=#quot title="刘备..." target=_blank>这里</a>会新打开一个窗口并回到之前的锚点
+</p>
+<p></p>
