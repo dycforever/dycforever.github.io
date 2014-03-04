@@ -92,7 +92,24 @@ tags: ["html", "css"]
         // other functions and members...
     }
 </code></pre>
-暂时不知道怎么调语法高亮，囧
+貌似没有什么效果。。。。。<br>
+再试试这个:
+<pre class="prettyprint linenums lang-cpp">
+int find_target(const vector<int> &num, int left, int right, int target) {
+    int mid = (left + right) / 2;
+    while (left <= right) {
+        mid = (left + right) / 2;
+        if (num[mid] == target) {
+            return mid;
+        } else if (num[mid] &lt; target) {
+            left = mid+1;
+        } else {
+            right = mid-1;
+        }
+    }
+    return -1;
+}
+</pre>
 </p>
 
             
