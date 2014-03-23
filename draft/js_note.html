@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+
+<style type="text/css">
+body {
+    /* 字体一共有五种系列：sans-serif/serif/monospace/cursive/fantasy */
+    font-family:monospace;
+    font-size: 16px;
+    color: black;
+    /*字体笔画宽度： lighter/hormal/bold/bolder*/
+    font-weight: lighter;
+    /*字体样式*/
+
+    /*调整行间距, 如font-size一样，也可以使用%或者px等*/
+    line-height: 1.6em;
+
+    border-color: black;
+    border-width: 0px;
+    border-style: solid;
+    padding: 25px;
+}
+</style>
+
+<head>
+    <meta charset="utf-8">
+    <title>
+        js_note title
+    </title>
+</head>
+
+
+<body>
+
+<br>
+
+<h2>
+    基本语法
+</h2>
+JavaScript中，数组可以这样两种方式声明：
+
+<pre class="prettyprint linenums lang-cpp">
+    var years = [2001, 2002, 2003];
+    var years = Array(2001, 2002, 2003);
+</pre>
+
+<h2>
+    DOM元素
+</h2>
+如果在函数中直接使用了某个变量而没有用var声明，就会把这个变量当作全局变量，于是也就可能覆盖全局变量的值。
+<br>
+JavaScript有三种对象：
+
+<ol id="obj-table">
+<li>语言内建模型，比如Data, Array</li>
+<li>浏览器提供的对象，比如Window</li>
+<li>用户自定义对象</li>
+</ol>
+
+元素共分12类，其中三类最有实用价值
+<dl id="node-table">
+<dt>元素节点</dt>   <dd>值为1</dd>
+<dt>属性节点</dt>   <dd>值为2</dd>
+<dt>文本节点</dt>   <dd>值为3</dd>
+</dl>
+可以用元素的nodeType属性来查看此node属于哪一类。
+
+<script>
+    document.write("<p> 可以这样来用document.write()写入内容，但是使html和JavaScript耦合度过高，因此不推荐这么写。<p> ");
+</script>
+
+<h2>
+    动态图片
+</h2>
+<ul>
+    <li> 
+        <a href="bridge.jpg" title="bridge">1 </a>
+    </li>
+    <li>
+        <a href="bridge_router.jpg" title="bridge_route" > 2 </a>
+    </li>
+    <li> 
+        <a href="kernel_log_src_struct.jpg" title="kernel_log_src_struct" >3 </a>
+    </li>
+    <li> 
+        <a href="switch.jpg" title="switch" >4 </a>
+    </li>
+</ul>
+
+<p id="description"> image description: </p>
+
+<img src="kernel_log_app_level.gif" id="placeholder" alt="hold place"/>
+
+
+</body>
+
+<script src="common.js" >
+</script>
+
+<script src="js_note.js" >
+</script>
+
