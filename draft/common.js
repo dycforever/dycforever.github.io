@@ -29,6 +29,9 @@ function listHead2 () {
     var defList = document.createElement("dl");
 
     var body = document.getElementsByTagName("body")[0];
+    if (body == undefined || body.firstChild == undefined) {
+        return;
+    }
     var firstHead = body.firstChild.nextSibling;
 //    insertAfter(defList, firstHead);
     body.insertBefore(defList, firstHead);

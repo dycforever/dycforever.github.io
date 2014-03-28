@@ -7,32 +7,63 @@
 <script src="test.js">
 </script>
 
+<h1>
 sysfs 文件系统 
+</h1>
 
-linux2.6内核引入sysfs文件系统，sysfs可以看成与proc,devfs和devpty同类别的文件系统，该文件系统是虚拟的文件系统，可以更方便对系统设备进行管理。它可以产生一个包含所有系统硬件层次视图，与提供进程和状态信息的proc文件系统十分类似。
-sysfs把连接在系统上的设备和总线组织成为一个分级的文件，它们可以由用户空间存取，向用户空间导出内核的数据结构以及它们的属性。sysfs的一个目的就是展示设备驱动模型中各组件的层次关系，其顶级目录包括block,bus,drivers,class,power和firmware等.
-wugang@wugang-desktop:~$ ls /sys      //运行环境ubuntu 8.04(2.6.16)
-block bus class devices firmware fs kernel module power slab
+linux2.6内核引入sysfs文件系统，sysfs可以看成与proc,devfs和devpty同类别的文件系统，可以更方便对系统设备进行管理。它可以产生一个包含所有系统硬件层次视图,展示设备驱动模型中各组件的层次关系.
 
-它把实际连接到系统上的设备和总线组织成一个分级的文件，用户空间的程序同样可以利用这些信息以实现和内核的交互，该文件系统是当前系统上实际设备树的一个直观反应，它是通过kobject子系统来建立这个信息的，当一个kobject被创建的时候，对应的文件和目录也就被创建了，位于 /sys下的相关目录下，既然每个设备在sysfs中都有唯一对应的目录，那么也就可以被用户空间读写了。
+它把实际连接到系统上的设备和总线组织成一个分级的文件，其顶级目录包括block,bus,drivers,class,power和firmware等，用户空间的程序同样可以利用这些信息以实现和内核的交互，该文件系统是当前系统上实际设备树的一个直观反应，它是通过kobject子系统来建立这个信息的，当一个kobject被创建的时候，对应的文件和目录也就被创建了，位于 /sys下的相关目录下，既然每个设备在sysfs中都有唯一对应的目录，那么也就可以被用户空间读写了。
 
-你可能根本没有去关心过sysfs文件系统的挂载过程，它是这样被挂载的。
-mount -t sysfs sysfs /sys
-sysfs是一个特殊文件系统，并没有一个实际存放文件的介质。sysfs的信息来源是kobject层次结构，读一个sysfs文件，就是动态的从kobject结构提取信息，生成文件。重启后里面的信息当然就没了
+sysfs文件系统与kobject结构紧密关联，每个在内核中注册的kobject对象都对应于sysfs文件系统中的一个目录。Kobject在内核中由struct kobject表示。通过这个数据结构使所有设备在底层都具有统一的接口，类似于C++中的基类，它嵌入于更大的对象的对象中，用来描述设备模型的组件。如bus,devices, drivers 等。Kobject提供了如下的基本功能：
+ 对象引用计数；
+ 维护对象链表；
+ 对象加锁；
+ 用户空间的表示；
 
-sysfs文件系统与kobject结构紧密关联，每个在内核中注册的kobject对象都对应于sysfs文件系统中的一个目录。Kobject 是Linux 2.6引入的新的设备管理机制，在内核中由struct kobject表示。通过这个数据结构使所有设备在底层都具有统一的接口，kobject提供基本的对象管理，是构成Linux2.6设备模型的核心结构，Kobject是组成设备模型的基本结构。类似于C++中的基类，它嵌入于更大的对象的对象中，用来描述设备模型的组件。如bus,devices, drivers 等。都是通过kobject连接起来了，形成了一个树状结构。这个树状结构就与/sys向对应。
-注：这里对kobject结构不进行介绍了，http://blog.chinaunix.net/u1/55599/showart.php?id=1086478 详细解释。
+sysfs就是利用VFS的接口去读写kobject的层次结构，建立起来的文件系统。 kobject的层次结构的注册与注销XX_register()形成的。
 
-sysfs就是利用VFS的接口去读写kobject的层次结构，建立起来的文件系统。 kobject的层次结构的注册与注销XX_register()形成的。文件系统是个很模糊广泛的概念， linux把所有的资源都看成是文件，让用户通过一个统一的文件系统操作界面，也就是同一组系统调用，对属于不同文件系统的文件进行操作。这样，就可以对用户程序隐藏各种不同文件系统的实现细节，为用户程序提供了一个统一的，抽象的，虚拟的文件系统界面，这就是所谓"VFS(Virtual Filesystem Switch)"。这个抽象出来的接口就是一组函数操作。
 我们要实现一种文件系统就是要实现VFS所定义的一系列接口，file_operations, dentry_operations, inode_operations等，供上层调用。file_operations是描述对每个具体文件的操作方法(如：读，写)，dentry_operations结构体指明了VFS所有目录的操作方法, 而inode_operations提供所有结点的操作方法。
-举个例子，我们写C程序，open(“hello.c”, O_RDONLY)，它通过系统调用的流程是这样的
-open() ->       /*用户空间*/
--> 系统调用->    /*通过系统调用，程序进程内核状态*/
-sys_open() -> filp_open()-> dentry_open() -> file_operations->open()           /*内核空间*/
 
-不同的文件系统，调用不同的file_operations->open()，在sysfs下就是sysfs_open_file()。
 我们使用不同的文件系统，就是将它们各自的文件信息都抽象到dentry和inode中去。这样对于高层来说，我们就可以不关心底层的实现，我们使用的都是一系列标准的函数调用。这就是VFS的精髓，实际上就是面向对象。
 注意sysfs是典型的特殊文件。它存储的信息都是由系统动态的生成的，它动态的包含了整个机器的硬件资源情况。从sysfs读写就相当于向 kobject层次结构提取数据。
+
+sysfs中，一个dentry对应了一个sysfs_dirent结构，d_entry->d_fsdata就指向了sysfs_dirent类型。
+
+struct kobject {
+    char * k_name;		// 指向设备名称的指针
+    char name[KOBJ NAME LEN];		// 设备名称
+    struct kref kref;		// 对象引用计数
+    struct list_head entry;		// 挂接到所在 kset 中去的单元
+    struct kobject * parent;		// 指向父对象的指针
+    struct kset * kset;		// 所属 kset 的指针
+    struct kobj_type * ktype;		// 指向其对象类型描述符的指针
+    struct dentry * dentry;		// sysfs 文件系统中与该对象对应的文件节点路径指针
+}
+
+kobject_init():
+将kref设置为1，初始化entry，增加此kobject所在的kset的引用计数
+
+kobject_set_name():
+分配内存用以存储name
+
+kobject_get():
+增加引用计数
+
+kobject_put():
+减一引用计数，如果为0则调用kobject_release()
+
+kobject_add():
+如果此kobject属于某个kset，就增加kset的引用计数，然后再增加kobject的引用计数
+如果kobjcet没有parent，就设置它的parent为kset，并增加引用计数
+
+kobject_register():
+先调用kobject_init()，再调用kobject_add()，最后是kobject_uevent()通知执行了add kobject行为
+kobject_uevent()内部先顺着kobject找到它的top_kobj(顺着parent往上第一个有kset的祖先)，如果此kset有uevent_ops->filter就调用其中的filter()，
+如果此kset有uevent_ops->name就调用其中的name()得到subsystem's name；如果此kset有uevent_ops->uevent就调用其中的uevent()。
+然后在env中设置PATH/DEVPATH/SUBSYSTEM/SEQNUM四个环境变量，其中的DEVPATH就是此kobject的绝对路径。
+最后，如果有需要就通知netlink和hotplug事件。
+
 
 下面列举一个事例：
 每当我们新增一个kobject结构的时候，同时会在/sys下创建一个目录。
@@ -128,4 +159,3 @@ sysfs_create()->sysfs_new_inode(mode) -> new_inode(sysfs_sb)
 (3)sysfs make dirent()分析 (106行)
 至此，我们得到了一个dirent结构,初始化，再把它连接到上层目录的sysfs_dirent的s_children链表里去。sysfs_make_dirent()为刚刚新建出来的dentry建立一个dirent结构。并将dentry和dirent联系起来。
 
-注：事例代码我自己还没有分析很透测，读者可以自行分析。具体代码参考：sysfs.h。明白具体调用过程。
