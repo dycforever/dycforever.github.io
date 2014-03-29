@@ -6,6 +6,13 @@
 </head>
 
 <style type="text/css">
+    .image {
+        width: 650px;
+        height: 450px;
+        overflow: scroll;
+        /*        
+        */
+    }
     .contcite {
         font-style: italic;
     }
@@ -43,7 +50,7 @@
 <h2>
 hub
 </h2>
-<img src="bridge.jpg">
+<img class="image" src="bridge.jpg">
 <p class="amazingflow">
 A Hub is the simplest of these devices. In general, a hub is the central part of a wheel where the spokes come together. Hubs cannot filter data so data packets are sent to all connected devices/computers and do not have intelligence to find out best path for data packets. This leads to inefficiencies and wastage.
 </p>
@@ -59,7 +66,7 @@ As a network product, a hub may include a group of modem cards for dial-in users
 <h2>
 Bridge
 </h2>
-<img src="bridge_router.jpg">
+<img class="image" src="bridge_router.jpg">
 <p>
 In telecommunication networks, a bridge is a product that connects a local area network (LAN) to another local area network that uses the same protocol. Having a single incoming and outgoing port and filters traffic on the LAN by looking at the MAC address, bridge is more complex than hub. Bridge looks at the destination of the packet before forwarding unlike a hub. It restricts transmission on other LAN segment if destination is not found.
 </p>
@@ -70,7 +77,7 @@ A bridge works at the data-link (physical network) level of a network, copying a
 <h2>
 Switch
 </h2>
-<img src="switch.jpg">
+<img class="image" src="switch.jpg">
 <p>
 A switch when compared to bridge has multiple ports. Switches can perform error checking before forwarding data, which are very efficient by not forwarding packets that error-end out or forwarding good packets selectively to correct devices only.
 </p>
@@ -111,4 +118,4 @@ In computer networking, a single layer-2 network may be partitioned to create mu
 
     </div>
 
-<body>
+</body>
