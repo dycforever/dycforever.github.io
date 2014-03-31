@@ -39,4 +39,13 @@ ignore_change_ip - if False, the session is only valid when it is accessed from 
 secret_key - salt used in session id hash generation
 expired_message - message displayed when the session expires
 
+用web.input()读取多个参数的时候，你需要让web.input知道这是一个多值变量,否则会变成一串而不是一个变量 .传递一个list给 web.input 作为默认值,就会正常工作.举个例子:
+
+class SomePage:
+def GET(self):
+user_data = web.input(id=[])
+return "<h1>" + ",".join(user_data.id) + "</h1>"
+
+译者补充: 多值变量这儿,在WEB上除了上面所说的multiple select 和query strings外,用得最多的就是复选框(checkbox)了,另外还有多文件上传时的<input type="file" ...>
+
 </body>
