@@ -11,6 +11,7 @@
 《core python》笔记
  </h2>
     print可以像printf一样使用，但是用%来分割；<br>
+    在2.7中，"print i,"可以每次打印i后都不换行；在3.0以后，可以这样print(i, end='')
     raw_input函数会自动去掉输入的回车符，然后将读到的内容作为返回值返回；<br>
     /表示整数除法，//表示浮点数除法；<br>
     and or not作为逻辑运算符链接各个条件；<br>
@@ -20,21 +21,22 @@
     字典由{}包含，键值之间由冒号分隔，键值对之间由逗号分隔<br>
 <br>
     if expr1:<br>
-    ........<br>
+        ........<br>
     elif expr2:<br>
-    .......<br>
+        .......<br>
     else<br>
-    .......<br>
+        .......<br>
 <br>
     while expr :<br>
-    ..........<br>
+        ..........<br>
 <br>
     range(n)函数表示0.1.2.....n-1<br>
     enumerate同时迭代数组下标和内容（下标在前）<br>
     可以用表达式后跟for循环、if判断来构造一个列表；这种方式叫做“list comprehension expression”，也可以用于初始化集合、字典等<br>
     列表可以嵌套<br>
 <br>
-    open函数和fopen差不多，不过可以用for var in fileobj的方法按行读文件<br>
+    open函数和fopen()差不多，不过可以用for var in fileobj的方法按行读文件<br>
+    open()有三个参数：文件名name，打开方式mode，缓冲区参数，第一个必须，其他的可选。
     定义函数：def funcname (argulist)<br>
     可以x,y = y,x<br>
     type(obj)可以返回类型对象，None类型相当于void，None类型的值永远相当于NULL<br>
@@ -55,6 +57,7 @@
     两个map的对比规则是：1、dict的长度；2、依次比较各个key；3、依次比较各个key的value；4、相等<br>
     zip()返回一个可迭代的对象，可以直接用dict()函数来接收该值，并构造map<br>
     map.items()函数以list的形式返回map的所有键值对，sorted(dict)返回排序后的所有keys<br>
+
 <br>
     集合set内的元素是无序的，所以不能使用[]取下标或者slice操作，<br>
     set有可变与不可变，分别用set()和frozenset()构造；set的比较操作表示包含关系，可以使用&取并集，|取交集，-求差，^求差分（就是异或操作），返回的集合类型取决于操作符左边的集合类型<br>
@@ -83,9 +86,9 @@
     python有专门的copy模块负责copy和deepcopy<br>
     ==是检测两个引用的值的相等性，而is是检测两个引用的本身的同一性<br>
 <br>
-    <h2><br>
-        资料笔记<br>
-    </h2><br>
+    <h2>
+        资料笔记
+    </h2>
     python3中，数据后面不用再加L来表示long类型，会出错<br>
 <br>
 <br>
@@ -96,10 +99,81 @@
 <br>
     支持buffer接口的典型对象是string和array, string对象以面向字节的形式暴露字符内容.<br>
     使用buffer接口的对象是file对象的write(str)方法. 任何能通过buffer接口输出一系列字节的对象,都可以写到文件里<br>
-<br>
-    <h2><br>
-    python调用C/C++<br>
-    </h2><br>
+    python中，%是一个二元操作符，用来格式化字符串。有人提了PEP3101，给出了一种新的格式化字符串的方法，叫做format，详情可见<a href="http://legacy.python.org/dev/peps/pep-3101/">这里</a>
+    ord(c)可以把一个char转为数字，chr(n)可以把一个数字转为ascii字符
+    module.py中定义的__all__变量，声明了本模块中，哪些变量会被导出，否则的话，默认_开头的是private的.
+
+
+    <h2>
+        dive into python笔记
+    </h2>
+    在函数内部，所有语句之前用"""包围的注释都会视为该函数的__doc__属性，可以直接访问funcname.__doc__输出。
+    import的搜索路径可以访问sys.path来得到一个list，可以对该变量赋值来自定义。
+
+    map(也就是Dictionary)的key分大小写，无序<br>
+    del dict[key]来删除一个元素，dict.clear()来清空所有的元素。
+    map用大括号{}定义，key与value之间用冒号(:)分隔，KV对之间用逗号(,)分隔；
+    list用中括号[]定义，元素之间用逗号(,)分隔；使用(begin:end)操作可以给list分片(slice)，注意begin一定要在end之前，否则返回为空；
+    用li.append(element)来给list添加元素；li.insert(index, element)将元素element插入到索引index的位置；li.extend(list)将一个list拼接上去；list的加法+（或者+=）可以拼接两个list，但是不能拼接一个list和一个元素；+运算符会返回一个全新的list，而extend只会修改原来的list，所以性能上extend稍快一些；乘法*用于重复list；
+    li.index(element)用以查找元素并返回索引，如果元素不存在会抛异常！检查是否存在用"element in li"语法
+    空字符串，tuple，list，dictionary以及0都是false，其他的都是True
+    list.remove(elem)来删除元素；
+
+    tuple与list相比，不能修改，没有append/remove/index这些方法，in还是可以的。tuple的好处是iterate时速度比list快，const安全，而且由于const可以用来做dictionary的key而list不行。
+
+    有内置的tuple()函数将list转换为tuple；也有类似的list()函数。
+    可以用类似print的格式来给字符串指定格式。
+    
+    [ e*2 for e in li ] 这样的list解析是python的好处。结合dict的keys()/values()/items()三个函数，可以使用[v for k,v in dict.items()]这样的类函数式代码。再结合join()函数就更加高大上了。注意join()只可作用于字符串
+    split()函数起的作用则和join()相反。
+    dir(obj)函数返回对象的所有方法；如果传入的对象是一个module，还会返回对象的所有属性。
+    dir()/str()/type()这些函数都在__buildin__模块中，相当于每个程序执行前都from __buildin__ import * 
+    getattr(obj,str)可以返回对象的名为str的属性或方法的引用。
+    hasattr(obj,str)可以判断对象的名为str的属性或方法是否存在。
+    and运算符从左至右依次计算所有条件的值，并返回第一个为假的值；如果都为真，则返回最后一个真的值；
+    or运算符从左至右依次计算所有条件的值，并返回第一个为真的值；如果都为假，则返回最后一个假的值；
+
+    从一个类的方法中去调用其他的成员方法，或者基类的成员方法时，都要加上self。
+    python中没有函数重载这件事！如果定义重名的函数，后一个就会把前一个完全覆盖掉！
+    python中的对象有很多特殊的成员方法，比如：
+    __setitem__: dict[key]的写操作时被调用
+    __getitem__: dict[key]的读操作时被调用
+    __delitem__: del dict[key]时被调用
+    __str__: str(obj)时被调用
+    __repr__: repr(obj)时被调用
+    __cmp__: 两个对象通过==比较时被调用
+    __len__: len(obj)时被调用
+    像上面这些，以__开头的方法和成员都是私有的。（不要求__结尾）
+    文件打开后，tell()返回当前的ppos，read(bytes)返回从ppos处开始，长度为bytes的字节数组，不指定长度则读取全部文件
+    seek()的第二个参数：为0表示从开始处，1表示从当前位置，2表示从末尾
+
+    sys.module是一个字典，保护所有被导入的模块，以模块名为key。类都有一个__module__属性，定义了这个类所属模块的名字。
+    os中包含了很多对路径名操作的小函数：
+    os.path.join(pathname, filename)返回完整的文件路径名，而且会帮助处理一个特殊字符如windows下的\
+    os.path.split(pathname)返回一个tuple，(pathname, filename)
+    os.path.splittext(filename)返回一个tuple，(文件名,扩展名)
+    os.path.isdir(filename)判断是否是目录
+    os.path.isfile(filename)判断是否是文件
+
+    os.listdir(pathname)返回一个list，相当于执行了ls命令
+
+    str.replace(reped, rep)可以执行简单的替换，将rep替换为reped
+    re.sub(pattern, rep, str)将字符串str中与正则pattern匹配的字符替换为str
+    re.search(pattern, str)搜索str中是否有字串匹配pattern
+    由于正则表达式太难度了，所以可以使用"""的方式在正则表达式里加#注释，称为松散的正则表达式()
+
+    python也有命名空间的概念，python在查找一个变量名时，会依次在局部命名空间(函数/类)、全局命名空间（模块）、内置命名空间中查找。
+    locals()和globals()分别以dictionary的形式返回局部、全局变量，以变量名为key，变量的值为value。
+    locals()的一大作用是使用基于dictionary的字符串格式化。
+    python中，一个具有read()方法的对象，被称之为类文件(file-like)对象。StringIO模块用于把一个字符串转换为类文件对象。
+    sys中也有类似传统Unix的sys.stdout、sys.stderr这些对象。还可以用sys.argv来获得命令行参数的list
+    
+
+
+
+    <h2>
+    python调用C/C++
+    </h2>
 <br>
     所有可以直接调用的函数原型都是：static PyObject * function(PyObject *self, PyObject *args)<br>
     当函数执行失败时，应该设置一个异常，并（通常）返回NULL。<br>
@@ -110,7 +184,6 @@
     PyErr_Clear()则用来将其reset。<br>
 <br>
     当Python中 import 一个C的模块时，PyInit_XXX()会被调用. <br>
-    在函数内部，所有语句之前用"""包围的注释都会视为该函数的__doc__属性，可以直接访问funcname.__doc__输出。
-    import的搜索路径可以访问sys.path来得到一个list，可以对该变量赋值来自定义。
 
 </body>
+
