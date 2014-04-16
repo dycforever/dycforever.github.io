@@ -34,7 +34,7 @@ body {
 在2.6.26内核中，sysctl_init()没有在do_basic_setup()中北调用，而是变成了core_initcall(sysctl_init)，其本质上就是：
 如果内核没有定义宏MODULE，则core_initcall()就是define_initcall(“1”,fn,1)，被直接链接进入内核；
 如果内核定义了MODULE宏，则core_initcall()就是module_init()，转而：
-<img src="module_init.png">
+<img src="/images/module_init.png">
 
 所以对于可编译到内核与编译成模块的代码，如果编译到了内核，就会自动生成.initcall0.init这样的段，以及对应的initcall函数，根据数字的大小优先，在内核初始化的时候，在do_initcalls中被调用。如果是被编译成内核，那就需要在内核的启动脚本中，由用户态程序介入来主动加载。
 
