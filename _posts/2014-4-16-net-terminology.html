@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" type="text/css" href="base_format.css">
+</head>
+
+<style type="text/css">
+    .image {
+        width: 650px;
+        height: 450px;
+        overflow: scroll;
+        /*        
+        */
+    }
+    .contcite {
+        font-style: italic;
+    }
+    /*
+    .amazingflow {
+        width: 200px;
+        float: left;
+    }
+    */
+    #netdevice {
+        border-width: 0;
+        border-style: solid;
+        border-color: green;
+
+        margin-left:15px;
+        margin-top:25px;
+
+        padding-left: 15px;
+        padding-right: 15px;
+        padding-bottom: 15px;
+
+    }
+    #netdevice h2 {
+        color: blue;
+    }
+</style>
+
+<body>
+    <h2>
+        本页面介绍一些网络设备的基本概念
+    </h2>
+
+    <div id="netdevice">
+
+<h2>
+hub
+</h2>
+<img class="image" src="/bridge.jpg">
+<p class="amazingflow">
+A Hub is the simplest of these devices. In general, a hub is the central part of a wheel where the spokes come together. Hubs cannot filter data so data packets are sent to all connected devices/computers and do not have intelligence to find out best path for data packets. This leads to inefficiencies and wastage.
+</p>
+
+<p>
+As a network product, a hub may include a group of modem cards for dial-in users, a gateway card for connections to a local area network (for example, an Ethernet or a token ring), and a connection to a line. Hubs are used on small networks where data transmission is not very high.
+</p>
+
+<p>
+根据《计算机网络》一书的描述，由于hub会无过滤转发，所以有一个节点在发消息就会影响其他节点，于是一个hub就构成了一个冲突域。
+</p>
+
+<h2>
+Bridge
+</h2>
+<img class="image" src="/bridge_router.jpg">
+<p>
+In telecommunication networks, a bridge is a product that connects a local area network (LAN) to another local area network that uses the same protocol. Having a single incoming and outgoing port and filters traffic on the LAN by looking at the MAC address, bridge is more complex than hub. Bridge looks at the destination of the packet before forwarding unlike a hub. It restricts transmission on other LAN segment if destination is not found.
+</p>
+<p>
+A bridge works at the data-link (physical network) level of a network, copying a data frame from one network to the next network along the communications path
+</p>
+
+<h2>
+Switch
+</h2>
+<img class="image" src="/switch.jpg">
+<p>
+A switch when compared to bridge has multiple ports. Switches can perform error checking before forwarding data, which are very efficient by not forwarding packets that error-end out or forwarding good packets selectively to correct devices only.
+</p>
+<p>
+Switches can support both layer 2 (based on MAC Address) and layer 3 (Based on IP address) depending on the type of switch. Usually large networks use switches instead of hubs to connect computers within the same subnet.
+</p>
+<p>
+根据《计算机网络》一书的描述，bridge经常用来连接很多个LAN，而switch经常用来和独立的计算机连接；就像上面说的那样，bridge经常只有两个port，incoming和outcoming，switch则有很多个port
+</p>
+
+<h2>
+Router
+</h2>
+<p>
+A router, like a switch forwards packets based on address. Usually, routers use the IP address to forward packets, which allows the network to go across different protocols. Routers forward packets based on software while a switch (Layer 3 for example) forwards using hardware called ASIC (Application Specific Integrated Circuits). Routers support different WAN technologies but switches do not.
+</p>
+<p>
+Besides, wireless routers have access point built in. The most common home use for routers is to share a broadband internet connection. As the router has a public IP address which is shared with the network, when data comes through the router, it is forwarded to the correct computer.
+</p>
+<p>
+the original material is referred from:<br>
+<span class="contcite">switch vs router hub bridge repeater wireless access point<br>
+More tips on switches or routers comparison at:<br>
+Cisco Switch Comparison-catalyst 2960 VS 3560 VS 3750 VS 4500 VS 6500<br>
+Stacking Cisco 2960-S VS Cisco 3750 Switches<br>
+Cisco 1941 VS 2901-Comparison Helps You Choose the Right Router</span><br>
+</p>
+
+<h2>
+    vlan
+</h2>
+<p>
+In computer networking, a single layer-2 network may be partitioned to create multiple distinct broadcast domains.
+</p>
+<p>
+这是比较本质的解释，作用就是为了分隔广播域，除此之外与switch、bridge的区别就是，支持vlan的设备可以通过在链路层的消息头中加入几个tag，实现基于packet的消息分发与隔离。
+</p>
+
+    </div>
+
+</body>

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+
+<style type="text/css">
+body {
+    /* 字体一共有五种系列：sans-serif/serif/monospace/cursive/fantasy */
+    font-family:monospace;
+    font-size: 16px;
+    color: black;
+    /*字体笔画宽度： lighter/hormal/bold/bolder*/
+    font-weight: lighter;
+    /*字体样式*/
+
+    /*调整行间距, 如font-size一样，也可以使用%或者px等*/
+    line-height: 1.6em;
+
+    border-color: black;
+    border-width: 0px;
+    border-style: solid;
+
+    /*页面周边留白*/
+    padding: 60px;
+}
+    .image {
+        width: 1000px;
+        height: 1000px;
+        overflow: scroll;
+        /*        
+        */
+    }
+</style>
+
+<head>
+    <meta charset="utf-8">
+</head>
+
+<body>
+
+<h2>
+    概述
+</h2>
+    本文研究了kernel中log的来龙去脉，以printk()为例。printk()可以在系统初始化后所有的地方使用，内部用三个指针维护了一个ring buffer。
+    如果想在初始化系统时打印日志，可以使用printk的另一个版本，early_printk()。
+    下面是它定义的日志级别：
+    <pre class="prettyprint linenums lang-cpp">
+    #define KERN_EMERG "<0>" /* 系统不可使用 */
+    #define KERN_ALERT "<1>" /* 需要立即采取行动 */
+    #define KERN_CRIT "<2>" /* 严重情况 */
+    #define KERN_ERR "<3>" /* 错误情况 */
+    #define KERN_WARNING "<4>" /* 警告情况 */
+    #define KERN_NOTICE "<5>" /* 正常情况, 但是值得注意 */
+    #define KERN_INFO "<6>" /* 信息型消息 */
+    #define KERN_DEBUG "<7>" /* 调试级别的信息 */
+    </pre>
+    未指定日志级别的 printk() 采用的默认级别是 DEFAULT_MESSAGE_LOGLEVEL，这个宏在 kernel/printk.c 中被定义为整数 4，即对应KERN_WARNING。
+
+    <h2>
+        日志级别控制
+    </h2>
+    cat /proc/sys/kernel/printk 会显示4个数值（可由 echo 修改），分别是console_loglevel（当前控制台日志级别）、default_message_level（未明确指定日志级别的默认消息日志级别）、minimum_console_level（最小允许设置的控制台日志级别）、default_console_level（引导时默认的日志级别）。
+    
+    以上四个值，个人整理如下：<br>
+    console_loglevel表示在当前，比这个等级高的日志会打印到控制台<br>
+    default_message_level表示未指定等级的日志，此为默认级别<br>
+    minimum_console_level表示第一个值可以设置的最小值<br>
+    default_console_level表示第一个值的默认值<br>
+
+    注：日志等级越高，就是数值越小<br>
+
+    <h2>
+        应用层
+    </h2>
+    <img src="kernel_log_app_level.gif">
+
+    <p>
+
+    无论当前控制台日志级别是何值，通过 /proc/kmsg （或使用dmesg）总能查看。如果配置好并运行了 syslogd 或 klogd，没有在控制台上显示的 printk 的信息也会追加到 /var/log/messages.log 中。
+    glibc的syslog 调用（在内核中调用 ./linux/kernel/printk.c 的 do_syslog）是一个相对较小的函数，它能够读取和控制内核环缓冲区。注意在 glibc 2.0 中，由于词汇 syslog 使用过于广泛，这个函数的名称被修改成 klogctl，它指的是各种调用和应用程序。syslog 和 klogctl（在用户空间中）的原型函数定义为：
+
+    <pre class="prettyprint linenums lang-cpp">
+    int syslog( int type, char *bufp, int len );
+    int klogctl( int type, char *bufp, int len );
+    </pre>
+
+    dmesg 命令也可用于打印和控制内核环缓冲区。这个命令使用 klogctl 系统调用来读取内核环缓冲区，并将它转发到标准输出（stdout）。这个命令也可以用来清除内核环缓冲区（使用 -c 选项），设置控制台日志级别（-n 选项），以及定义用于读取内核日志消息的缓冲区大小（-s 选项）。注意，如果没有指定缓冲区大小，那么 dmesg 会使用 klogctl 的SYSLOG_ACTION_SIZE_BUFFER 操作确定缓冲区大小。
+
+    <p>
+
+    所有日志应用程序都是基于一个标准化日志框架 syslog，主流操作系统（包括 Linux? 和 Berkeley Software Distribution [BSD]）都实现了这个框架。syslog 使用自身的协议实现在不同传输协议的事件通知消息传输（将组件分成发起者、中继者和收集者）。在许多情况中，所有这三种组件都在一个主机上实现。除了 syslog 的许多有意思的特性，它还规定了日志信息是如何收集、过滤和存储的。syslog 已经经过了许多的变化和发展。您可能听过 syslog、klog 或sysklogd。最新版本的 Ubuntu 使用的是名为 rsyslog（基于原先的 syslog）的新版本 syslog，它指的是可靠的和扩展的syslogd。
+
+    <p>
+
+    rsyslogd 守护程序通过它的配置文件 /etc/rsyslog.conf 来理解 /proc 文件系统的 kmsg 接口，并使用这些接口获取内核日志消息。注意，在内部，所有日志级别都是通过 /proc/kmsg 写入的，这样所传输的日志级别就不是由内核决定的，而是由rsyslog 本身决定的。然后这些内核日志消息会存储在 /var/log/kern.log（及其他配置的文件）。在 /var/log 中有许多的日志文件，包括一般消息和系统相调用（/var/log/messages）、系统启动日志（/var/log/boot.log）、认证日志（/var/log/auth.log）等等。
+
+    <p>
+
+    <h2>
+        源码分析
+    </h2>
+    printk()定义在kernel/printk.c中，内部调用vprintk()来实现。<br>
+
+    <img class="image" src="/kernel_log_src_struct.jpg">
+</body>
