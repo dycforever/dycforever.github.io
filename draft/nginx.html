@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" type="text/css" href="base_format.css">
+</head>
+
+<body>
+nginx中，有一个modules数组，里面放的是所有在nginx中需要用到的模块，这个数组是在文件objs/ngx_modules.c中定义的，而objs/ngx_modules.c则是由auto configure根据配置自动生成的。auto/sources文件中列出了所有模块的文件名，auto/modules文件中则是根据配置，觉定那些模块要加入ngx_modules数组中。
+
+用命令：sudo lsof -p $PID_OF_NGINX可以看到nginx程序打开的所有文件fd，这是single模式下的nginx的一个例子：
+
+<code>
+dyc@dyc-pc-pro ~/sourceReading/nginx-1.4.6/src/core $ sudo lsof -p 19895
+lsof: WARNING: can't stat() fuse.gvfsd-fuse file system /run/user/1000/gvfs
+      Output information may be incomplete.
+      COMMAND   PID USER   FD   TYPE DEVICE SIZE/OFF     NODE NAME
+      nginx   19895 root  cwd    DIR    8,7     4096 16521547 /home/dyc/graph
+      nginx   19895 root  rtd    DIR    8,6     4096        2 /
+      nginx   19895 root  txt    REG    8,7  3278968 16519646 /home/dyc/graph/nginx
+      nginx   19895 root  mem    REG    8,6    52160  8916847 /lib/x86_64-linux-gnu/libnss_files-2.17.so
+      nginx   19895 root  mem    REG    8,6    47760  8916851 /lib/x86_64-linux-gnu/libnss_nis-2.17.so
+      nginx   19895 root  mem    REG    8,6    97296  8916841 /lib/x86_64-linux-gnu/libnsl-2.17.so
+      nginx   19895 root  mem    REG    8,6    35728  8916843 /lib/x86_64-linux-gnu/libnss_compat-2.17.so
+      nginx   19895 root  mem    REG    8,6  1853400  8916771 /lib/x86_64-linux-gnu/libc-2.17.so
+      nginx   19895 root  mem    REG    8,6    43368  8916779 /lib/x86_64-linux-gnu/libcrypt-2.17.so
+      nginx   19895 root  mem    REG    8,6   135757  8916886 /lib/x86_64-linux-gnu/libpthread-2.17.so
+      nginx   19895 root  mem    REG    8,6   149312  8916747 /lib/x86_64-linux-gnu/ld-2.17.so
+      nginx   19895 root    0u   CHR    1,3      0t0     1029 /dev/null
+      nginx   19895 root    1u   CHR    1,3      0t0     1029 /dev/null
+      nginx   19895 root    2w   REG    8,7      391 16786430 /home/dyc/tools/nginx/logs/error.log
+      nginx   19895 root    3u  0000    0,9        0     6306 anon_inode
+      nginx   19895 root    4w   REG    8,7     1310 16786431 /home/dyc/tools/nginx/logs/access.log
+      nginx   19895 root    5w   REG    8,7      391 16786430 /home/dyc/tools/nginx/logs/error.log
+      nginx   19895 root    6u  IPv4 383853      0t0      TCP *:http (LISTEN)
+</code>
+
+lsof显示了进程对应的pwd目录，root目录，bin所在路径，建立映射的内存，以及所有打开了的fd。可以看到标准输入输出都被从定向到了/dev/null，除了用于日志的fd以外，fd3显示为"anonymous inode"，也就是在file system中没有对应条目的fd，在此处也就是epoll socket;
+fd6则是用于监听新链接的TCP socket。
+
+</body>
