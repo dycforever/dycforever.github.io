@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" type="text/css" href="base_format.css">
+</head>
+
+<body>
+    urllib与urllib2是互补的关系。
+　　urllib2可以接受一个Request对象，并以此可以来设置一个URL的headers，也就是http头部中的各个字段，但是urllib只接收一个URL，所以只能设置url中的参数。
+　　urllib模块可以提供进行urlencode的方法，该方法用于url中参数的生成，urllib2的不具有这样的功能。
+    简而言之，urllib用于设置url中的参数，urllib2用于设置http头部中的各个字段。
+    
+<h2> urllib </h2>
+urllib.urlopen(url[, data[, proxies]])
+当请求含有data参数时，HTTP的请求为POST，否则就是GET; data参数一般由urlencode()返回; proxies用于指定代理
+返回的对象不光有大部分的内置文件对象的接口，还有geturl()/info()/getcode()三个函数.
+geturl(): 当访问的url被redirect的时候，调用者是感受不到的，只能通过这个函数得到被重定向以后的url
+经测试，在nginx中，rewrite的redirect算是重定向，而使用proxy_pass则通过此函数是感知不到的
+info(): 返回一个 mimetools.Message类的实例，包含和url相关的meta信息。对于HTTP而言，html页面head中的信息，以及Content-Length和Content-Type会被返回。
+getcode(): 返回response中的状态码
+
+urllib.urlencode(query[, doseq])
+将一个dict或者two-tuple的list转换为编码后的string
+
+urllib.urlretrieve(url[, filename[, reporthook[, data]]])
+用来从指定的url下载文件; filename用于指定保存的文件名; reporthook用于比如显示下载进度; 如果有data参数，发送的文件下载请求就会是一个post
+此函数会抛ContentTooShortError异常: 如果通过http协议下载一个文件，Content-Length会被是为文件的期望大小，如果实际read到的数据小于Content-Length，就会抛出异常; 如果大于等于Content-Length，或者没有提供Content-Length，则没有问题。
+如果抛出了异常，读到的数据还是可以从异常的content属性获得；
+
+
+<h2> urllib2 </h2>
+urllib2.urlopen(url[, data][, timeout])
+data参数与urllib中的意义相同, timeout用于设置等待相应的最长时间
+返回的对象同上; 有可能抛出两种异常
+exception urllib2.URLError: reason属性包含了失败信息
+exception urllib2.HTTPError: code包含了错误码, reason属性包含了失败信息
+
+class urllib2.Request(url[, data][, headers][, origin_req_host][, unverifiable])
+data参数如上所述; header参数是一个dict，效果和调用add_header()函数一致, 用于设置HTTP头部中的各个字段，比如User-Agent;
+origin_req_host等于cookielib.request_host(self). 如RFC 2965所述; unverifiable表示此请求是否可被验证，如RFC 2965所述.
+
+返回得到的request对象有如下函数：
+add_data(data): 表示添加到http请求body中的数据，添加属于后会使GET变为POST; 可以用get_data()函数返回data; 
+add_header(key, val): 添加header到request 
+add_unredirected_header(key, header): 如果发生redirect, 这些header会被去除
+set_proxy(host, type): 设置代理和schema
+header_items(): 将headers作为一个2-tuple的list返回
+
+
+附一个常用http header的列表：
+Accept [Request]
+Specifies which Internet media types are acceptable for the response and to assign preferences to them.
+
+Accept-Charset [Request]
+Specifies which character encodings (confusingly called "charsets") are acceptable for the response and to assign preferences to them.
+
+Accept-Encoding [Request]
+Specifies which data format tranformations, confusingly called content (en)codings, such as compression mechanisms, are acceptable for the response and to assign preferences to them.
+Accept-Language [Request]
+Specifies which natural languages are acceptable for the response and to assign preferences to them. Useful for language negotation.
+Accept-Ranges [Response]
+Indicates the server's acceptance of range requests for a resource.
+Age [Response]
+Gives the sender's estimate of the amount of time since the response (or its revalidation) was generated at the origin server.
+Allow [Entity]
+Lists the set of methods supported by the resource identified by the Request-URI. The purpose is to inform the recipient of valid methods associated with the resource.
+Authorization [Request]
+Consists of credentials containing the authentication information of the client for the realm of the resource being requested
+Cache-Control [General]
+Specifies directives that must be obeyed by all caching mechanisms along the request/response chain.
+Connection [General]
+Specifies options that are desired for the particular connection and must not be communicated by proxies over further connections.
+Content-Encoding [Entity]
+Used as a modifier to the media-type, to indicate what additional data format transformations such as compression have been applied to the entity-body.
+Content-Language [Entity]
+Specifies the natural language(s) of the intended audience for the enclosed entity. But according to RFC 3282, specifies the language(s) of the entity.
+Content-Length [Entity]
+Indicates the size (in octets) of the entity-body that is sent or that would have been sent if it has reen requested.
+Content-Location [Entity]
+Supplies the resource location for the entity enclosed in the message when that entity is accessible from a location separate from the requested resource's URI.
+Content-MD5 [Entity]
+An MD5 digest of the entity-body for the purpose of providing an end-to-end message integrity check (MIC) of the entity-body.
+Content-Range [Entity]
+Sent with a partial entity-body to specify where in the full entity-body the partial body should be applied.
+Content-Type [Entity]
+Specifies the Internet media type of the entity-body that is sent or would have been sent if requested. Often includes a charset parameter specifying the character encoding.
+Date [General]
+Date and time at which the message was originated.
+ETag [Response]
+Provides the current value of the entity tag for the requested variant, for caching purposes.
+Expect [Request]
+Indicates that particular server behaviors are required by the client.
+Expires [Entity]
+Gives the date/time after which the response is considered stale, for caching purposes.
+From [Request]
+The Internet e-mail address for the human user who controls the requesting browser or other client.
+Host [Request]
+Specifies the Internet host and port number of the resource being requested. Obligatory in all HTTP/1.1 requests.
+If-Match [Request]
+Used with a method to make it conditional: a client that has previously obtained entities can verify that one of those entities is current by including a list of their associated entity tags in the If-Match header field.
+If-Modified-Since [Request]
+Used with a method to make it conditional: if the requested variant has not been modified since the time specified in this field, the server will not return the entity but information about this fact.
+If-None-Match [Request]
+Used with a method to make it conditional: a client that has previously obtained entities can verify that none of those entities is current by including a list of their associated entity tags in the If-None-Match header field.
+If-Range [Request]
+Used together with Range to say: "if the entity is unchanged, send me the part(s) that I am missing; otherwise, send me the entire new entity".
+If-Unmodified-Since [Request]
+Used with a method to make it conditional: if the requested variant has been modified since the time specified in this field, the server will not perform the requested operation but information about this fact.
+Last-Modified [Entity]
+Indicates the date and time at which the origin server believes the variant was last modified.
+Location [Response]
+Redirects the recipient to a location other than the Request-URI for completion of the request or identification of a new resource.
+Max-Forwards [Request]
+Provides a mechanism with the TRACE and OPTIONS methods to limit the number of proxies or gateways that can forward the request to the next inbound server.
+Pragma [General]
+Used to include implementation-specific directives that might (optionally) apply to any recipient along the request/response chain.
+Proxy-Authenticate [Response]
+Included as part of a 407 (Proxy Authentication Required) response. The field value consists of a challenge that indicates the authentication scheme and parameters applicable to the proxy for this Request-URI.
+Proxy-Authorization [Request]
+Used by a client to identify itself (or its user) to a proxy which requires authentication.
+Range [Request]
+Restricts the request to some part(s), specified as range(s) of octets, in the resource.
+Referer [Request]
+Used by a client to specify, for the server's benefit, the address (URI) of the resource from which the Request-URI was obtained.
+Retry-After [Response]
+Indicates how long the service is expected to be unavailable to the requesting client.
+Server [Response]
+Contains information about the software used by the origin server to handle the request.
+TE [Request]
+Indicates what extension transfer-codings the client is willing to accept in the response and whether or not it is willing to accept trailer fields in a chunked transfer-coding.
+Trailer [General]
+Indicates that the given set of header fields is present in the trailer of a message encoded with chunked transfer-coding.
+Transfer-Encoding [General]
+Indicates what (if any) type of transformation has been applied to the message body in order to safely transfer it between the sender and the recipient. This differs from the Content-Encoding in that the transfer-coding is a property of the message, not of the entity.
+Upgrade [General]
+Used by a client to specify what additional communication protocols it supports and would like to use if the server finds it appropriate to switch protocols. The server uses the Upgrade header to indicate which protocol(s) are being switched.
+User-Agent [Request]
+Contains information about the user agent (client) originating the request
+Vary [Response]
+Indicates the set of request-header fields that fully determines, while the response is fresh, whether a cache is permitted to use the response to reply to a subsequent request without revalidation.
+Via [General]
+Used by gateways and proxies to indicate the intermediate protocols and recipients between the user agent and the server on requests, and between the origin server and the client on responses.
+Warning [General]
+Carries additional information about the status or transformation of a message which might not be reflected in the message.
+WWW-Authenticate [Response]
+Used in 401 (Unauthorized) response messages. The field value consists of at least one challenge that indicates the authentication scheme(s) and parameters applicable to the Request-URI.
+</body>
+
+
+

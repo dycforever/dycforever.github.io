@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" type="text/css" href="base_format.css">
+</head>
+
+<body>
+
+<h2>
+commands in redis:
+</h2>
+
+# key operation
+set name dyc
+get name
+
+incr name           # increase key by 1 and keep atomic
+del name            # delete key from redis
+
+# timeout operation
+expire name 120     # expire after 120 seconds
+ttl name            # test last
+
+# list operation(l here means list)
+rpush list item
+lpush list item
+
+rpop list
+lpop list
+
+llen list
+lrange list start_pos end_pos
+
+linsert listname BEFORE|AFTER pivot item
+
+# set operation(s here means set)
+sadd sets s1
+sadd sets s2
+sadd sets s2
+sadd sets s3
+
+smembers s2
+
+srem sets s2
+sismember s2
+
+# sorted-set operation, items are sorted by scores
+zadd sortedsets socre1 item1
+zrange sortedsets start_pos end_pos
+
+# hash set
+hset hashset key value
+hmset hashset key1 value1 key2 value2 key3 value3   # insert multiple key-values at once
+hgetall hashset 
+hget hashset value
+</body>
+
