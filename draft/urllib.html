@@ -7,7 +7,8 @@
 
 <body>
     urllib与urllib2是互补的关系。
-　　urllib2可以接受一个Request对象，并以此可以来设置一个URL的headers，也就是http头部中的各个字段，但是urllib只接收一个URL，所以只能设置url中的参数。
+　　urllib2.urlopen()的url参数可以接受一个Request对象，并以此可以来设置一个URL的headers，也就是http头部中的各个字段，
+    但是urllib.urlopen()只接收一个URL，所以只能设置url中的参数。
 　　urllib模块可以提供进行urlencode的方法，该方法用于url中参数的生成，urllib2的不具有这样的功能。
     简而言之，urllib用于设置url中的参数，urllib2用于设置http头部中的各个字段。
     
@@ -21,7 +22,7 @@ info(): 返回一个 mimetools.Message类的实例，包含和url相关的meta�
 getcode(): 返回response中的状态码
 
 urllib.urlencode(query[, doseq])
-将一个dict或者two-tuple的list转换为编码后的string
+将一个dict或者two-tuple的list转换为编码后的query string
 
 urllib.urlretrieve(url[, filename[, reporthook[, data]]])
 用来从指定的url下载文件; filename用于指定保存的文件名; reporthook用于比如显示下载进度; 如果有data参数，发送的文件下载请求就会是一个post
@@ -31,6 +32,7 @@ urllib.urlretrieve(url[, filename[, reporthook[, data]]])
 
 <h2> urllib2 </h2>
 urllib2.urlopen(url[, data][, timeout])
+url可以是一个Request对象。
 data参数与urllib中的意义相同, timeout用于设置等待相应的最长时间
 返回的对象同上; 有可能抛出两种异常
 exception urllib2.URLError: reason属性包含了失败信息

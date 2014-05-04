@@ -38,4 +38,12 @@ lsof: WARNING: can't stat() fuse.gvfsd-fuse file system /run/user/1000/gvfs
 lsof显示了进程对应的pwd目录，root目录，bin所在路径，建立映射的内存，以及所有打开了的fd。可以看到标准输入输出都被从定向到了/dev/null，除了用于日志的fd以外，fd3显示为"anonymous inode"，也就是在file system中没有对应条目的fd，在此处也就是epoll socket;
 fd6则是用于监听新链接的TCP socket。
 
+<h2>
+1. git clone https://github.com/agentzh/lua-resty-redis.git  
+2. add this line in http block of nginx.conf:
+   lua_package_path "/path/to/lib/under/lua-resty-redis/?.lua;;";  
+3. add this line in location block of nginx.conf:
+   content_by_lua_file /path/to/script.lua;
+</h2>
+
 </body>
