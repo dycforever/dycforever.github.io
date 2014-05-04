@@ -43,7 +43,7 @@ data参数如上所述; header参数是一个dict，效果和调用add_header()�
 origin_req_host等于cookielib.request_host(self). 如RFC 2965所述; unverifiable表示此请求是否可被验证，如RFC 2965所述.
 
 返回得到的request对象有如下函数：
-add_data(data): 表示添加到http请求body中的数据，添加属于后会使GET变为POST; 可以用get_data()函数返回data; 
+add_data(data): 表示添加到http请求body中的数据，添加属于后会使GET变为POST; 可以用get_data()函数返回data; 注意这边的data和构造Request参数时的data含义是不一样的。
 add_header(key, val): 添加header到request 
 add_unredirected_header(key, header): 如果发生redirect, 这些header会被去除
 set_proxy(host, type): 设置代理和schema
