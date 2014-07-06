@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" type="text/css" href="base_format.css">
+</head>
+
+<body>
+<h1>
+Load Average
+</h1>
+
+首先从一个概念开始：什么是Load Average，当我们使用uptime/top等工具查看系统性能时，经常能看到Load Average后面紧跟着三个数字，man uptime中给出的解释是：
+System load averages is the average number of processes that are either in a runnable or uninterruptable state. 
+也就是处于runnable or uninterruptable state状态的进程的平均数量，三个数字则分别代表1/5/15三个时间跨度内的Load Average。
+内核在计算这三个数字的时候，就是每隔5秒，计算一次进程队列中RUNNING、UNINTERRUPTABLE_SLEEP进程的个数。虽然字面说是平均数，其实并不准确，因为要计算一般意义上的平局数。
+必须把所有的采样点保留下来，内核使用了更高级的算法：
+
+<img src="/images/load_average_algorithm.png" id="placeholder" alt="hold place"/>
+
+当然这样的公式有很多，不同版本的内核也有可能采用其他的average method公式。
+
+<h1>
+    CPU利用率
+</h1>
+CPU利用率计算时主要考虑的是使用CPU的进程，而Load Average还考虑了UNINTERRUPTABLE_SLEEP状态的进程，所以低CPU利用率不表明CPU不是瓶颈，有可能一个进程占用了CPU，但是处于UNINTERRUPTABLE_SLEEP状态空置，导致CPU利用率下降，Load Averge依然很高。（这一点有待日后研究内核考证）
+
+<h1>
+UNINTERRUPTABLE_SLEEP
+</h1>
+那么什么时候进程会处于UNINTERRUPTABLE_SLEEP状态呢？我尝试了让程序阻塞在read socket上，以及主动sleep(100)，再用ps命令查看，发现进程状态都是S，也就是INTERRUPTABLE_SLEEP，那么什么时候进程会处于UNINTERRUPTABLE_SLEEP状态呢？网上的说法是执行IO操作的时候，因为IO时要和设备打交道，有时需要保证一个操作的原子性，不能被信号打断。理所当然的，UNINTERRUPTABLE_SLEEP状态应该尽可能得短，如果一个进程长期由于IO处于UNINTERRUPTABLE_SLEEP状态，那么可能是设备本身出了故障，也可能是驱动程序有bug。
+
+<h1>
+    进程与会话
+</h1>
+用ps查看进程状态的时候，会发现有很多进程状态一栏里有个+号，man ps发现，有+号的表示该进程属于前台进程组，再去搜一下可知，一个进程组就是一对可以同时接收信号的进程集合；每个会话都可以有最多一个前台进程组，当与此回话绑定的tty通过按键产生一个信号时，所有前台进程组中的进程都会接收到信号（这边为什么说是tty产生信号而不是键盘产生信号，见下文）。
+
+通过实验可以得到这样的现象：
+如果父进程创建子进程后，都立刻陷入无限循环，则两个进程都属于前台进程组，按下Ctrl-C可以同时杀死两者；
+如果父进程退出了，子进程依然在无限循环，则父进程退出后，子进程也不再属于前台进程组了（因为组长进程推出导致进程组消亡？），所以键盘按Ctrl-C也杀不死子进程；
+如果子进程主动调用setsid()新建回话自立门户，那当然也就不属于原来回话的前台进程组了。
+
+可以用 tcgetpgrp(fd)函数获得一个tty的前台进程组，fd就是相应tty的文件描述符；也可以用tcsetpgrp(fd,pgrp))函数为一个tty设置它的前台进程组，pgrp就是进程组id。
+
+<h1>
+tty与自动交互
+</h1>
+进程看到进程会与一个tty绑定，会话也会与一个tty绑定，那么tty究竟是什么东西呢？
+tty全程Teletypewriter，可以理解为终端；现在基本不用终端了，而是靠键盘输入，屏幕来输出，所以我们接触的的基本都是虚拟终端pty。一个虚拟终端是一对全双工的字符设备，它由两个逻辑设备组成：master和slave。
+slave就像是一个传统的终端，一个进程如果想和终端连接，就只要打开slave文件即可。如果把slave看做一个终端，那么与之连接的bash就相当于是我们登陆linux时使用的bash，它并不知道所连接的是真的终端，或者只是一个表现得像终端的进程。
+master就像是接受输入的键盘和展现输出的屏幕，所有write到master的都可以从slave中read到，所有write到slave的都可以从master中read。
+所以，如果我们往master中写入一个控制命令，比如Ctrl-C，那么对应的slave就会接收到这个信号并发生相应的行为。这也是为什么上文说tty产生一个信号给前台进程组，而未必是真实的键盘产生信号。
+刚才说的子进程，如果不新建一个session，那么他就和父进程属于同一个tty；而如果子进程调用setsid()，那么他就会成为一个没有绑定tty的进程，System V规定，第一个打开的tty会成为进程的控制tty，所以只要子进程调用setsid()之后打开一个pts(pty slave)，他就等于和一个tty绑定了。（BSD规定必须显示调用ioctl(fd, TIOCSCTTY, ...)才可以为进程指定tty。)
+像简单的sshpass，复杂的telnetd/sshd都是通过这种技术来实现的。
+<img>
+    <img src="/images/pty_master_slave.png" id="placeholder" alt="hold place"/>
+</img>
+编程时如何使用呢？
+/dev/ptmx用于创建一对pseudoterminal master和slave。当一个进程打开/dev/ptmx，他就得到一个新的ptm的fdm，用这个fdm调用ptsname()函数，就可以得到此master对应的slave的设备路径，在打开slave之前，必须先对fdm调用这两个函数：grantpt()，unlockpt()。否则slave打开会出错。
+注意调用grantpt()时，不要按装SIGCHLD信号的handler，因为grantpt()内部会使用调用fork()和waitpid()，如果外部程序捕获了SIGCHLD信号，可能导致waitpid()调用失败，导致不可预期的后果。
+</body>
+
