@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" type="text/css" href="base_format.css">
+</head>
+
+<body>
+2014.08.16
+    今天只是心血来潮，上网看看C++11中std::thread的用法，无意中发现了这篇好文章:
+    http://www.ituring.com.cn/article/17979
+    原文：http://akrzemi1.wordpress.com/2012/11/14/not-using-stdthread/
+    大意是作者举了这个例子：
+
+    void run_in_parallel(function<void()> f1, function<void()> f2)
+    {
+        thread thr{f1}; // run f1 in a new thread
+        f2();           // run f2 in this thread
+        thr.join();     // wait until f1 is done
+    }
+    这段并行计算的代码看似简单，其实有问题，就是如果f2在运行时抛异常，整个程序会异常结束。原因是f2()抛异常，run_in_parallel()退出，然后stack unwind（概念见下文）调用thr的析构函数，此时thr对应的线程是joinable状态，而std::thread的析构函数发现它对应的线程是joinable的，就会调用std::terminate()。抛异常只是举个例子，如果程序复杂，任何在调用thr.join()之前的return都会导致程序终止。
+    那么，为什么要这么极端地退出呢？为什么不仅仅是把joinable状态设置成detach而已，或者干脆cancel那个线程呢？
+    1. 为什么不能cancel？
+        因为线程cancel，那个线程就完全停止运行了，线程中临时对象的析构函数也不会被调用，有违C++的RAII设计；
+    2. 为什么不能detach？
+        因为detach的话，主线程退出了，另一个线程依然在继续运行，很可能导致隐藏更深的问题，详见下文。
+
+    文章主旨就是想告诉我们，就像现在我们使用指针的时候经常会用shared_ptr/unique_ptr去封装，std::thread也是和指针一样灵活和危险，使用的时候最好自己在外面封装一层，比如：
+    {
+        JoiningThread thr{f1}; // run f1 in a new thread
+        f2();                  // run f2 in this thread
+    }   
+    让JoiningThread去帮捕获异常和join。
+
+    C++本身有没有提供类似高级抽象的东西呢？可以参考std::async，不过它也有别的注意事项(http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3451.pdf)
+    现在回到之前说的，为什么detach不行，就是这篇更精彩的文章：http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2008/n2802.html
+    里面说道，最开始的时候std::thread的析构函数是这样的逻辑：
+    if (joinable())
+        detach()
+    但是后来人们发现，这样做没有带来什么性能和易用性上的好处，却给用户挖了一个大坑。如下程序：
+
+    int fib(int n) {
+        if (n &lt;= 1) return n;
+        int fib1, fib2;
+
+        std::thread t([=, &amp;fib1]{fib1 = fib(n-1);});
+        fib2 = fib(n-2);
+        if (fib2 &lt; 0) throw ...
+        t.join();
+        return fib1 + fib2;
+    }
+
+    如果fib2的指因为异常分支退出，那么std::thread创建的线程依然在运行，同时会把返回值写到fib1中去，而此刻fib1其实已经无效了！类似这样的问题如果在实际情况中遇到，调试会很麻烦，因为这种改写很可能导致最后看到的调用栈是混乱的，万一遇到一个聪明的恶意用户，通过这种手段把别的地址写到return address的位置，那就是一个漏洞。给予以上原因，C++标准委员会最终决定，对于joinable状态的std::thread，调用析构函数就直接terminate()。
+    这里作者还提到一点，即使析构函数中不自动detach()，其实也还有别的选择，比如自动join()，而且作者本身更倾向于join()，但是大家讨论后，更多人支持简单的terminate()方案，所以作者也就同意了。
+
+    这个问题告一段落了，真正有意义的是，
+    1. 类似设计都没有绝对的对错/好坏，都是大家一起思考/讨论出来的，更能被广泛接受的方法；
+    2. 设计语言和其他产品的宗旨都差不多，就是服务好用户。不能说我们的产品有缺陷，容易诱导用户犯错，最后出了事故，还要怪用户用得不对。我们应该做的是站在用户的角度去思考，把可能的漏洞尽早堵住，而不是留个大坑等人掉。
+
+    关于什么叫stack unwind，来自stack overflow的解释：
+    
+</body>
