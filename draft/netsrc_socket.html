@@ -32,6 +32,13 @@ data: 20140823
                         =&gt; tcp_v4_get_port() net/ipv4/tcp_ipv4.c
     tcp没有tcp_bind()，所以sk-&gt;sk_prot-&gt;bind()为空，所以具体操作都在inet_bind()中。
     tcp_v4_get_port()本质上就是找一个可用的端口（如果没有显式指定），然后往系统全局的tcp_hashinfo-&gt;bhash[]中添加一个inet_bind_bucket结构，表示此端口已被占用。
+    同时也会调用inet_bind_hash()函数，将sock加入到inet_bind_bucket-&gt;owners链表中，并用sock-&gt;icsk_bind_hash指向inet_bind_bucket对象。(另一个会将sock加入inet_hash_bucket-&gt;owners的就成就是调用tcp_v4_connect())
+
+    可以看到，bind()和listen()的过程中，都会调用tcp_v4_get_port()，这和下面设置inet_bind_bucket-&gt;fastreuse成员的逻辑有关：
+    一个设置了reuse熟悉的port是可以被重用的（多次添加到tcp_hashinfo-&gt;bhash[]），但是必须大家都设置了reuse属性，且只能有一个是LISTEN。不过当reuse属性为2时是可以强行bind的！
+    再看多个进程并发执行时怎么确定他们是否将bind的sock用于listen呢？将一个sock的sk_stat设置为TCP_LISTEN是发生在inet_csk_listen_start()中的，如果这个地方不调用tcp_v4_get_port()再次确认，就无法保证只有一个进程可以listen此port了。tb（也就是inet_bind_bucket对象）的并发安全就依靠inet_bind_bucket-&gt;lock这个自旋锁来保护。
+    实验也验证了这个过程：
+    多个进程是可以同时bind一个port的（调用bind()之前要先设置SO_REUSEADDR），但是同时listen就会报错。
 
     <h2>
         listen()
@@ -99,3 +106,6 @@ struct sock: include/net/sock.h
 struct proto: include/net/sock.h
 struct proto tcp_prot: net/ipv4/tcp_ipv4.c
 
+现在还有两个问题：
+reuse=2是什么情况
+rwmem那3个参数到底是什么意思。
