@@ -11,9 +11,18 @@
 </h2>
 
 数据到达网卡产生中断，网卡驱动程序：
+<ul>
+    <li>
     1. 将数据从DMA/PIO读到内存，分配skb，调用netif_rx(skb) =》 napi_schedule() =》 raise_softirq(NET_RX_SOFTIRQ)；
+    </li>
+    <li>
     2. skb进入接收队列，如果队列已满则丢弃；
+    </li>
+    <li>
     3. netif_rx()函数返回，中断处理程序结束。
+    </li>
+</ul>
+
 链路层处理流程如下图所示：
 <img src="/images/linux_network/packet_in_linkage.jpg" id="placeholder" alt="hold place"/>
 
@@ -28,10 +37,19 @@ do_softirq()处理软中断，调用net_rx_action() 处理之前标记的NET_RX_
 <img src="/images/linux_network/packet_in_ipv4.jpg" id="placeholder" alt="hold place"/>
 <img src="/images/linux_network/packet_in_ipv4(2).jpg" id="placeholder" alt="hold place"/>
 ip_rcv() 函数校验 IP 分组，之后调用netfilter 的 NF_IP_PRE_ROUTING；
+<br>
 ip_rcv_finish =》ip_route_input() 根据ip地址查找路由表，决定去向：
+<ul>
+    <li>
     1. 本地ip_local_deliver() =》NF_IP_LOCAL_IN =》ip_local_deliver_finish()
+    </li>
+    <li>
     2. 转发ip_forward()
+    </li>
+    <li>
     3. 广播ip_mr_input()
+    </li>
+<ul>
 
 转发流程如下图所示：
 <img src="/images/linux_network/packet_in_ipv4_forward.jpg" id="placeholder" alt="hold place"/>
@@ -43,16 +61,27 @@ ip_rcv_finish =》ip_route_input() 根据ip地址查找路由表，决定去向�
     传输层
 </h2>
 tcp协议的inet_protos[IPPROTO_TCP].handle()对应tcp_ipv4.c: 
+<br>
 tcp_v4_rcv() 
+<br>
     __inet_lookup() 根据四元组找到sock实例
+<br>
         __inet_lookup_established()
+<br>
         __inet_lookup_listener()
+<br>
     tcp_v4_do_rcv()根据sock的状态调用各个函数。
+<br>
         TCP_ESTABLISHED: tcp_rcv_established()
+<br>
         TCP_LISTEN: tcp_v4_hnd_req() 接受三次握手的第一个syn或第二个ack, 如果是第二个ack，调用tcp_check_req()调用tcp_v4_syn_recv_sock(),会将之前接收到SYN时创建的sock加入到监听socket的accept queue
+<br>
                     tcp_child_process() 如果是第二个ack则调用
+<br>
         tcp_rcv_state_process()
+<br>
             如果是第一个SYN，调用tcp_v4_conn_request()，初始化序列号，构造request_sock结构，加入监听socke的icsk_accept_queue中的listen_opt队列
+<br>
     
 <img src="/images/linux_network/packet_in_tcp.gif" id="placeholder" alt="hold place"/>
 
@@ -63,15 +92,21 @@ tcp_v4_rcv()
 
 TIME-WAIT有两个目的：
 
+<br>
 1. 防止 prevent delayed segments，也就是连接断开后同样的ip port四元组又建立了一条新的连接，那么就要预防之前那条连接在网络中遗留的分组被误当成新连接的分组；
 <img src="/images/linux_network/timewait_problem1.png" id="placeholder" alt="hold place"/>
+<br>
 2. 防止 the remote end has closed the connection，如果断开连接四次握手的最后一个ack丢失，对端就会长时间处于last ack状态，于是想建立新连接时，会对收到的SYN返回RST，导致新建连接异常失败。
 <img src="/images/linux_network/timewait_problem2.png" id="placeholder" alt="hold place"/>
 
+<br>
 tcp_tw_recycle与tcp_tw_reuse两个参数都是为了取消time wait而存在的，有什么区别呢？
+<br>
 tcp_tw_reuse借助timestamp，对于第一种情况，因为每个tcp包都有timestamp，所以之前连接的包会被识别为outdated并丢弃；第二种情况，对端接收到新的SYN并检查timestamp，知道是新连接的SYN，就不会返回RST而是重发FIN，本地socket处于SYN-SENT却接受到了FIN，就会发送RST，并最终重发SYN，使连接能够正常建立。但是需要注意的是，tcp_tw_reuse仅对新建outcoming的连接有效。
 <img src="/images/linux_network/use_tcp_tw_reuse.png" id="placeholder" alt="hold place"/>
+<br>
 tcp_tw_recycle
+<br>
 和tcp_tw_reuse的重要区别就是，它对 incoming/outgoing 的连接都是有效的，打开了此参数的socket，timewait状态会在RTO（retransmission timeout）时间后消除；为了应对time wait的两个问题，它会在进入time wait时记下当时的timestamp，那么所有超过此时间的包都会被丢弃，不过这种解决方案在遇到NAT设备时就会有问题。
 
 来自：http://vincent.bernat.im/en/blog/2014-tcp-time-wait-state-linux.html
@@ -81,7 +116,9 @@ tcp_tw_recycle
 </h2>
 ifconfig显示的所有interface其实都是从/proc/net/dev中读出来的，那么，怎么从内核源码中找到/proc/net/dev对应的代码在哪里呢？
 grep proc_net_fops_create . -rn | grep dev -w
+<br>
 ifconfig列出所有interface的原理就是：遍历net对象的dev_base_head list
+<br>
 此list是系统初始化时各驱动程序，比如e1000_main.c调用register_netdev(dev) =》register_netdevice(dev) =》list_netdevice(dev)构造而成。
 
 </body>
