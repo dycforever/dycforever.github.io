@@ -64,6 +64,38 @@ data: 20140823
                     =&gt; sk-&gt;sk_prot-&gt;accept()   net/ipv4/af_inet.c
                         =&gt; inet_csk_accept() net/ipv4/inet_connection_sock.c
 
+    <h2>
+        setsockopt()
+    </h2>
+    以LINGER参数为例，grep内核源码可以发现，有两个带LINGER的enum，一个叫做SOCK_LINGER，另一个叫做TCP_LINGER2，从名字上可以明白，一个是socket层的参数，而另一个是tcp层的参数。应用在调用setsockopt()时通过level参数来表示设置哪一层的参数。
+    socket层的SOCK_LINGER参数就是unp书中所描述的linger选项，设置它的调用栈如下：
+        sys_setsockopt()  net/socket.c
+            sock_setsockopt()  net/sock.c
+        将时间存到sk-&gt;sk_lingertime中，然后设置sk-&gt;sk_flags中的SOCK_LINGER标志位。
+
+    tcp层的TCP_LINGER2用来控制socket在FIN_WAIT2状态的停留时间，在tcp_keepalive_timer()中会用到，设置它的调用栈如下：
+        sys_setsockopt()  net/socket.c
+            sock-&gt;ops-&gt;setsockopt()
+                sock_common_socksetopt()  net/ipv4/af_inet.c
+                    sk-&gt;sk_prot-&gt;setsockopt()  
+                        tcp_setsockopt()   net/ipv4/tcp_ipv4.c
+                            tcp_do_setsockopt()   net/ipv4/tcp.c
+
+    <h2>
+        close()
+    </h2>
+    sys_close()    fs/open.c 
+        filp_close()   fs/open.c
+            fput()         fs/file_table.c
+                filp-&gt;f_op-&gt;release()   fs/file_table.c
+    
+    sock_close()   net/socket.c
+        sock_release()  net/socket.c
+            sock-&gt;ops-&gt;release()  
+                inet_release()    net/af_inet.c
+                    sk-&gt;sk_prot-&gt;close()   
+                        tcp_close()     net/tcp.c
+    上文所述的linger参数会在inet_release()被读取，传递给tcp_close()函数，最终在sk_stream_wait_close()中起作用
 
 struct inet_ehash_bucket {
 	struct hlist_head chain;
