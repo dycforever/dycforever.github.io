@@ -58,5 +58,9 @@
     2. 设计语言和其他产品的宗旨都差不多，就是服务好用户。不能说我们的产品有缺陷，容易诱导用户犯错，最后出了事故，还要怪用户用得不对。我们应该做的是站在用户的角度去思考，把可能的漏洞尽早堵住，而不是留个大坑等人掉。
 
     关于什么叫stack unwind，来自stack overflow的解释：
-    
+    When a scope (anything delimited by { and }) is exited (by using return XXX;, reaching the end of the scope or throwing an exception) everything within that scope is destroyed (destructors are called for everything). This process of destroying local objects and calling destructors is called stack unwinding. (Exiting a code block using goto will not unwind the stack which is one of the reasons you should never use goto in C++).
+    You have the following issues related to stack unwinding:
+    1. avoiding memory leaks (anything dynamically allocated that is not managed by a local object and cleaned up in the destructor will be leaked) - see RAII referred to by Nikolai, and the documentation for boost::scoped_ptr or this example of using boost::mutex::scoped_lock.
+    2. program consistency: the C++ specifications state that you should never throw an exception before any existing exception has been handled. This means that the stack unwinding process should never throw an exception (either use only code guaranteed not to throw in destructors, or surround everything in destructors with try { and } catch(...) {}).
+
 </body>

@@ -45,10 +45,10 @@ data: 20140823
                         =&gt; sk-&gt;sk_prot-&gt;get_port()   net/ipv4/inet_connection_sock.c
                             =&gt; tcp_v4_get_port() net/ipv4/tcp_ipv4.c
     inet_csk_listen_start()内会将sock的stat设置为TCP_LISTEN；一个监听socket对应一个inet_connection_sock，它有个成员icsq_accept_queue用来存储所有系统收到的建立连接请求。
-    icsq_accept_queue中有成员resq_accept_head和rskq_accept_tail，表示已经完成三次握手，等待accept的连接；
+    1.icsq_accept_queue中有成员resq_accept_head和rskq_accept_tail，表示已经完成三次握手，等待accept的连接；
 	inet_listen()中会设置sk-&gt;sk_max_ack_backlog为backlog，表示建立连接队列的最大值。
 
-    icsq_accept_queue还有个listen_sock类型的listen_opt成员，其中有一张syn_table hash表，用来存放所有接收到syn的半连接；
+    2.icsq_accept_queue还有个listen_sock类型的listen_opt成员，其中有一张syn_table hash表，用来存放所有接收到syn的半连接；
     listen_opt在reqsk_queue_alloc()中分配，syn_table的size是2^(backlog + 1)，同时把此hash表中可存放的半连接最大值lopt-&gt;max_qlen_log设置为backlog + 1；
     监听socket在接收到SYN后:
         1.用reqsk_queue_is_full()判断半连接队列(icsk_accept_queue)长度，里面也是用指数方法来判断是否超限。
@@ -63,6 +63,26 @@ data: 20140823
                 =&gt; inet_accept()    net/ipv4/af_inet.c
                     =&gt; sk-&gt;sk_prot-&gt;accept()   net/ipv4/af_inet.c
                         =&gt; inet_csk_accept() net/ipv4/inet_connection_sock.c
+
+
+    receive first syn:
+    tcp_v4_do_rcv()
+        =&gt;tcp_rcv_state_process()
+            =&gt;tcp_v4_conn_request()
+                |=&gt;inet_csk_reqsk_queue_is_full()
+                |=&gt;sk_acceptq_is_full()
+                |=&gt;tcp_v4_save_options()
+                |=&gt;tcp_v4_send_synack()
+                    |=&gt;tcp_make_synack()
+                    |=&gt;ip_build_and_send_pkt()
+                |=&gt;inet_csk_reqsk_queue_hash_add(sk, req, TCP_TIMEOUT_INIT);
+
+    receive ack and finish 3-hands:
+    tcp_v4_do_rcv()
+        =&gt;tcp_v4_hnd_req()
+            =&gt;tcp_check_req()
+                =&gt;inet_csk_reqsk_queue_unlink()  check if valid ack
+                    =&gt;inet_csk_reqsk_queue_add() add to icsk_accept_queue->resq_accept_head and backlog++
 
 
 struct inet_ehash_bucket {
