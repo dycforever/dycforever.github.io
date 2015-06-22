@@ -1,0 +1,21 @@
+
+body {
+    /* 字体一共有五种系列：sans-serif/serif/monospace/cursive/fantasy */
+    font-family:monospace;
+    font-size: 15px;
+    color: black;
+    /*字体笔画宽度： lighter/normal/bold/bolder*/
+    font-weight: normal;
+    /*字体样式*/
+
+    /*调整行间距, 如font-size一样，也可以使用%或者px等*/
+    line-height: 1.3em;
+
+    /* 在网页的四周加一个框，让文字向中间挤 */
+    border-color: black;
+    border-width: 0px;
+    border-style: solid;
+    padding: 25px;
+
+    /* background: #98fb98; */    
+}
