@@ -6,8 +6,7 @@ tags: ["html", "css"]
 ---
 <head> 
     <meta charset="utf-8">
-
-</head> 
+</head>
 
     <style type="text/css">
         p {color: blue;}
@@ -39,14 +38,13 @@ tags: ["html", "css"]
         }
     </style>
 
-
 <p>
 先来个<q>头像</q> <img alt="jyt" src=/images/jyt.jpg><br>
 </p>
 
 <p>
-上文中的头像两个字，我用&lt;q&gt;做了引用，而&amp;quot也可以表示引号的:&quot;&quot;，虽然形状上还是有点差别。其实呢，直接使用也是可以的""，囧吧？<br>
-那么，&lt;q&gt;的意义何在呢？就是从语义上告诉浏览器，这个文字我是在引用的！既然浏览器知道了你的用意，在必要的时候，它自然就会帮你对引用的文字做合适的渲染和处理～<br> 
+上文中的头像两个字，我用&lt;q&gt;做了引用，而&amp;quot也可以表示引号的:&quot;&quot;，虽然形状上还是有点差别。<br>
+那么，&lt;q&gt;的意义何在呢？就是从语义上告诉浏览器，这个文字我是在引用的！既然浏览器知道了你的用意，在必要的时候，它自然就会帮你对引用的文字做合适的渲染和处理<br>
 </p>
 
 <p>
@@ -75,25 +73,7 @@ tags: ["html", "css"]
 </ol>
 </p>
 
-<h2> 塔哒～</h2>
-<p>
-现在是码农最关心的code啦：<br>
-<pre><code>
-    class Foo { 
-        private Helper helper = null;
-        public Helper getHelper() {
-            if (helper == null) 
-                synchronized(this) {
-                    if (helper == null) 
-                        helper = new Helper();
-                }
-            return helper;
-        }
-        // other functions and members...
-    }
-</code></pre>
-貌似没有什么效果。。。。。<br>
-再试试这个:
+code效果
 <pre class="prettyprint linenums lang-cpp">
 int find_target(const vector<int> &num, int left, int right, int target) {
     int mid = (left + right) / 2;
@@ -112,7 +92,6 @@ int find_target(const vector<int> &num, int left, int right, int target) {
 </pre>
 </p>
 
-            
 <h2>转义字符</h2>
     <table border="0" cellpadding="1" cellspacing="1" title="最常用的字符实体(Character Entities)">
         <tr align="left" class="head" valign="top"><th></th><th>显示结果 </th><th>说明 </th><th colspan=2>Entity Name </th></tr>
@@ -128,8 +107,6 @@ int find_target(const vector<int> &num, int left, int right, int target) {
         <tr align="left" valign="top">  <td>÷ </td><td>除号 </td><td>&amp;divide; </td><td>&amp;#247; </td></tr>
     </table>
 
-
-
 <p></p>
 <br>
 <p></p>
@@ -137,4 +114,5 @@ int find_target(const vector<int> &num, int left, int right, int target) {
 点<a href=#quot title="刘备..."><u>这里</u></a>回到之前的锚点 <br>
 点<a href=#quot title="刘备..." target=_blank><u>这里</u></a>会新打开一个窗口并回到之前的锚点
 </p>
+
 <p></p>
